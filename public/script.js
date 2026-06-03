@@ -1,12 +1,7 @@
-// ============================================
-// script.js — Frontend Chat Logic
-// Key change: calls /api/chat (our server)
-// NOT the Claude API directly
-// ============================================
+
 
 let conversationHistory = [];
 
-// Send message on Enter key (Shift+Enter = new line)
 document.getElementById('userInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -14,7 +9,7 @@ document.getElementById('userInput').addEventListener('keydown', function(e) {
   }
 });
 
-// Auto-resize textarea
+
 document.getElementById('userInput').addEventListener('input', function() {
   this.style.height = 'auto';
   this.style.height = Math.min(this.scrollHeight, 100) + 'px';
@@ -29,18 +24,17 @@ async function sendMessage() {
   inputEl.style.height = 'auto';
   setButtonDisabled(true);
 
-  // Show user bubble
+  
   addMessage('user', userText);
 
-  // Add to history
+
   conversationHistory.push({ role: 'user', content: userText });
 
-  // Show typing indicator
+
   showTypingIndicator();
 
   try {
-    // ✅ Call OUR server — not Claude directly
-    // The API key never leaves the server
+   
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
