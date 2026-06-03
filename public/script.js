@@ -47,7 +47,6 @@ async function sendMessage() {
 
     if (data.error) {
   addMessage('bot', '😅 Project is working perfectly! Just no API funds right now. Check back soon!');
-}
     } else {
       const reply = data.content[0].text;
       conversationHistory.push({ role: 'assistant', content: reply });
