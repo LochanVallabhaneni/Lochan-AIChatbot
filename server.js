@@ -1,7 +1,4 @@
-// ============================================
-// server.js — Nova AI Chatbot Backend
-// Run: node server.js
-// ============================================
+
 
 require('dotenv').config(); // loads your .env file
 const express = require('express');
@@ -11,13 +8,11 @@ const app = express();
 const PORT = 3000;
 
 // Middleware
-app.use(express.json());                          // parse JSON request bodies
-app.use(express.static(path.join(__dirname, 'public'))); // serve frontend files
+app.use(express.json());                         
+app.use(express.static(path.join(__dirname, 'public'))); 
 
-// ============================================
-// POST /api/chat — Main API route
-// Frontend calls this; we call Claude API
-// ============================================
+
+
 app.post('/api/chat', async (req, res) => {
   const { messages } = req.body;
 
@@ -36,7 +31,7 @@ app.post('/api/chat', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY, // key from .env — never exposed to browser
+        'x-api-key': process.env.ANTHROPIC_API_KEY, 
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
@@ -61,5 +56,5 @@ app.post('/api/chat', async (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`\n Lochan AI server running!`);
-  console.log(`👉 Open: http://localhost:${PORT}\n`);
+  console.log(` Open: http://localhost:${PORT}\n`);
 });
