@@ -21,10 +21,9 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'messages array is required' });
   }
 
-  // Check API key is configured
   if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set in .env file' });
-  }
+  return res.status(500).json({ error: 'API key not configured. Add ANTHROPIC_API_KEY in Railway Variables.' });
+}
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
