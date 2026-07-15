@@ -46,13 +46,12 @@ async function sendMessage() {
     removeTypingIndicator();
 
     if (data.error) {
-  addMessage('bot', '😅 Project is working perfectly! Just no API funds right now. Check back soon!');
+  addMessage('bot', '⚠️ Error: ' + data.error);
+} else {
+  const reply = data.reply;
+  conversationHistory.push({ role: 'assistant', content: reply });
+  addMessage('bot', reply);
 }
-    } else {
-      const reply = data.content[0].text;
-      conversationHistory.push({ role: 'assistant', content: reply });
-      addMessage('bot', reply);
-    }
 
   } catch (error) {
     removeTypingIndicator();

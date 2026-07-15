@@ -1,59 +1,62 @@
-
-
-require('dotenv').config(); // loads your .env file
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
-// Middleware
-app.use(express.json());                         
-app.use(express.static(path.join(__dirname, 'public'))); 
-
-
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/chat', async (req, res) => {
   const { messages } = req.body;
 
-  // Basic validation
+  
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'messages array is required' });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-  return res.status(500).json({ error: 'API key not configured. Add ANTHROPIC_API_KEY in Railway Variables.' });
-}
+ 
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ error: 'GROQ_API_KEY not configured.' });
+  }
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY, 
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'llama-3.3-70b-versatile',
         max_tokens: 1000,
-        system: 'You are Lochan, a friendly and helpful AI assistant. Keep responses clear and concise.',
-        messages: messages
+        messages: [
+          { role: 'system', content: 'You are Lochan, a friendly and helpful AI assistant. Keep responses clear and concise.' },
+          ...messages
+        ]
       })
     });
 
     const data = await response.json();
 
-    // Forward Claude's response back to the browser
-    res.json(data);
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: data.error?.message || 'Groq API error'
+      });
+    }
+
+    const reply = data.choices[0].message.content;
+    res.json({ reply });
 
   } catch (error) {
-    console.error('Error calling Claude API:', error);
-    res.status(500).json({ error: 'Failed to reach Claude API' });
+    console.error('Error calling Groq API:', error);
+    res.status(500).json({ error: 'Failed to reach Groq API' });
   }
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`\n Lochan AI server running!`);
-  console.log(` Open: http://localhost:${PORT}\n`);
+  console.log(`👉 Open: http://localhost:${PORT}\n`);
 });
