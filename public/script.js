@@ -74,7 +74,7 @@ function addMessage(role, text) {
 
   const bubble = document.createElement('div');
   bubble.classList.add('bubble');
-  bubble.textContent = text;
+  bubble.innerHTML = formatMessage(text);
 
   msgDiv.appendChild(avatar);
   msgDiv.appendChild(bubble);
@@ -109,4 +109,22 @@ function removeTypingIndicator() {
 
 function setButtonDisabled(disabled) {
   document.getElementById('sendBtn').disabled = disabled;
+}
+
+function formatMessage(text) {
+  
+  text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, function(match, lang, code) {
+    return `<pre><code>${code.trim()}</code></pre>`;
+  });
+
+  
+  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  
+  text = text.replace(/\n/g, '<br>');
+
+  return text;
 }
