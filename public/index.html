@@ -39,18 +39,29 @@
       </div>
 
       <div class="sidebar-bottom">
-        <div class="model-badge">
-          <span class="model-dot"></span>
-          llama-3.3-70b
-        </div>
-        <div class="sidebar-user">
-          <div class="user-avatar">L</div>
-          <div class="user-info">
-            <span class="user-name">Lochan</span>
-            <span class="user-plan">Free plan</span>
-          </div>
-        </div>
-      </div>
+  <div class="model-badge">
+    <span class="model-dot"></span>
+    llama-3.3-70b
+  </div>
+
+  <!-- Theme Toggle -->
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <span class="theme-icon" id="themeIcon">☀️</span>
+    <span class="theme-label" id="themeLabel">Light mode</span>
+    <div class="toggle-switch">
+      <div class="toggle-knob" id="toggleKnob"></div>
+    </div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">L</div>
+    <div class="user-info">
+      <span class="user-name">Lochan</span>
+      <span class="user-plan">Free plan</span>
+    </div>
+  </div>
+</div>
+   
     </aside>
 
     <!-- MAIN CHAT AREA -->

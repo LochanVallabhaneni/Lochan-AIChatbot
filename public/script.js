@@ -1,6 +1,30 @@
 // ============================================
-// script.js — Lochan AI Frontend Logic
+// THEME TOGGLE
 // ============================================
+
+// Load saved theme on page start
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+  document.body.classList.add('light');
+  document.getElementById('themeIcon').textContent = '🌙';
+  document.getElementById('themeLabel').textContent = 'Dark mode';
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  const icon = document.getElementById('themeIcon');
+  const label = document.getElementById('themeLabel');
+
+  if (isLight) {
+    icon.textContent = '🌙';
+    label.textContent = 'Dark mode';
+    localStorage.setItem('theme', 'light');
+  } else {
+    icon.textContent = '☀️';
+    label.textContent = 'Light mode';
+    localStorage.setItem('theme', 'dark');
+  }
+}
 
 let conversationHistory = [];
 
