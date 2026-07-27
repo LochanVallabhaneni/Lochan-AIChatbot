@@ -1,34 +1,81 @@
 // ============================================
-// THEME TOGGLE
+// THEME
 // ============================================
-
-// Load saved theme on page start
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme === 'light') {
   document.body.classList.add('light');
-  document.getElementById('themeIcon').textContent = '🌙';
-  document.getElementById('themeLabel').textContent = 'Dark mode';
 }
 
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light');
-  const icon = document.getElementById('themeIcon');
-  const label = document.getElementById('themeLabel');
-
-  if (isLight) {
-    icon.textContent = '🌙';
-    label.textContent = 'Dark mode';
-    localStorage.setItem('theme', 'light');
-  } else {
-    icon.textContent = '☀️';
-    label.textContent = 'Light mode';
-    localStorage.setItem('theme', 'dark');
-  }
+  document.getElementById('themeIcon').textContent  = isLight ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = isLight ? 'Dark mode' : 'Light mode';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
 }
 
+// ============================================
+// GOOGLE SIGN IN
+// ============================================
+function handleGoogleLogin(response) {
+  // Decode the JWT token Google sends
+  const payload = JSON.parse(atob(response.credential.split('.')[1]));
+
+  const user = {
+    name:    payload.name,
+    email:   payload.email,
+    picture: payload.picture
+  };
+
+  // Save user to localStorage
+  localStorage.setItem('lochan_user', JSON.stringify(user));
+
+  // Show the app
+  showApp(user);
+}
+
+function showApp(user) {
+  // Hide login screen
+  document.getElementById('loginScreen').style.display = 'none';
+
+  // Show main app
+  document.getElementById('appShell').style.display = 'flex';
+
+  // Fill user info in sidebar
+  document.getElementById('userName').textContent  = user.name;
+  document.getElementById('userEmail').textContent = user.email;
+  document.getElementById('userPhoto').src         = user.picture;
+
+  // Personalize welcome message
+  const firstName = user.name.split(' ')[0];
+  const welcomeTitle = document.getElementById('welcomeTitle');
+  if (welcomeTitle) {
+    welcomeTitle.textContent = `Hello, ${firstName}! How can I help you?`;
+  }
+
+  // Apply saved theme labels
+  const isLight = document.body.classList.contains('light');
+  document.getElementById('themeIcon').textContent  = isLight ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = isLight ? 'Dark mode' : 'Light mode';
+}
+
+function logout() {
+  localStorage.removeItem('lochan_user');
+  location.reload();
+}
+
+// Check if already logged in on page load
+window.addEventListener('load', function() {
+  const savedUser = localStorage.getItem('lochan_user');
+  if (savedUser) {
+    showApp(JSON.parse(savedUser));
+  }
+});
+
+// ============================================
+// CHAT LOGIC
+// ============================================
 let conversationHistory = [];
 
-// Send on Enter (Shift+Enter = new line)
 document.getElementById('userInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -36,18 +83,54 @@ document.getElementById('userInput').addEventListener('keydown', function(e) {
   }
 });
 
-// Auto-resize textarea
 document.getElementById('userInput').addEventListener('input', function() {
   this.style.height = 'auto';
   this.style.height = Math.min(this.scrollHeight, 160) + 'px';
 });
 
+function sendSuggestion(text) {
+  document.getElementById('userInput').value = text;
+  sendMessage();
+}
+
+function clearChat() {
+  conversationHistory = [];
+  const messages = document.getElementById('messages');
+  messages.innerHTML = `
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="welcome-title" id="welcomeTitle">How can I help you today?</h1>
+      <p class="welcome-sub">Ask me anything — code, writing, analysis, or just a conversation.</p>
+      <div class="suggestion-grid">
+        <button class="suggestion-card" onclick="sendSuggestion('Explain how neural networks work in simple terms')">
+          <span class="suggestion-icon">🧠</span>
+          <span class="suggestion-text">Explain neural networks simply</span>
+        </button>
+        <button class="suggestion-card" onclick="sendSuggestion('Write a Python function to sort a list of dictionaries by a key')">
+          <span class="suggestion-icon">🐍</span>
+          <span class="suggestion-text">Python sorting function</span>
+        </button>
+        <button class="suggestion-card" onclick="sendSuggestion('Give me 5 tips to improve my Upwork profile as a beginner freelancer')">
+          <span class="suggestion-icon">💼</span>
+          <span class="suggestion-text">Upwork profile tips</span>
+        </button>
+        <button class="suggestion-card" onclick="sendSuggestion('What are the best free tools for a web developer in 2025?')">
+          <span class="suggestion-icon">🛠️</span>
+          <span class="suggestion-text">Best free dev tools 2025</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 async function sendMessage() {
-  const inputEl = document.getElementById('userInput');
+  const inputEl  = document.getElementById('userInput');
   const userText = inputEl.value.trim();
   if (!userText) return;
 
-  // Hide welcome screen
   const welcome = document.getElementById('welcome');
   if (welcome) welcome.remove();
 
@@ -55,18 +138,15 @@ async function sendMessage() {
   inputEl.style.height = 'auto';
   setButtonDisabled(true);
 
-  // Add user message
   addMessage('user', userText);
   conversationHistory.push({ role: 'user', content: userText });
-
-  // Show typing indicator
   showTypingIndicator();
 
   try {
     const response = await fetch('/api/chat', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: conversationHistory })
+      body:    JSON.stringify({ messages: conversationHistory })
     });
 
     const data = await response.json();
@@ -92,6 +172,9 @@ async function sendMessage() {
 
 function addMessage(role, text) {
   const messagesEl = document.getElementById('messages');
+  const savedUser  = localStorage.getItem('lochan_user');
+  const user       = savedUser ? JSON.parse(savedUser) : null;
+  const firstName  = user ? user.name.split(' ')[0][0] : 'L';
 
   const row = document.createElement('div');
   row.classList.add('message-row', role === 'bot' ? 'ai' : 'user');
@@ -99,24 +182,29 @@ function addMessage(role, text) {
   const inner = document.createElement('div');
   inner.classList.add('message-inner');
 
-  // Avatar
   const avatar = document.createElement('div');
   avatar.classList.add('msg-avatar');
+
   if (role === 'bot') {
     avatar.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
       <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`;
+  } else if (user && user.picture) {
+    // Show real Google profile photo for user messages
+    const img = document.createElement('img');
+    img.src = user.picture;
+    img.style.cssText = 'width:30px;height:30px;border-radius:50%;object-fit:cover;';
+    avatar.appendChild(img);
   } else {
-    avatar.textContent = 'L';
+    avatar.textContent = firstName;
   }
 
-  // Content
   const content = document.createElement('div');
   content.classList.add('msg-content');
 
   const sender = document.createElement('div');
   sender.classList.add('msg-sender');
-  sender.textContent = role === 'bot' ? 'Lochan AI' : 'You';
+  sender.textContent = role === 'bot' ? 'Lochan AI' : (user ? user.name.split(' ')[0] : 'You');
 
   const bubble = document.createElement('div');
   bubble.classList.add('msg-bubble');
@@ -132,7 +220,6 @@ function addMessage(role, text) {
 }
 
 function formatMessage(text) {
-  // Code blocks with language detection
   text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, function(match, lang, code) {
     const language = lang || 'code';
     return `<pre>
@@ -143,16 +230,9 @@ function formatMessage(text) {
       <code>${escapeHtml(code.trim())}</code>
     </pre>`;
   });
-
-  // Inline code
   text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-  // Bold
   text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-  // Line breaks
   text = text.replace(/\n/g, '<br>');
-
   return text;
 }
 
@@ -201,4 +281,8 @@ function removeTypingIndicator() {
 
 function setButtonDisabled(disabled) {
   document.getElementById('sendBtn').disabled = disabled;
+}
+
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
 }

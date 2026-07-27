@@ -6,10 +6,51 @@
   <title>Lochan AI</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <!-- Google Sign In -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-  <div class="app-shell">
+  <!-- ============================================
+       LOGIN SCREEN (shown before login)
+  ============================================ -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="login-title">Welcome to Lochan AI</h1>
+      <p class="login-sub">Sign in to start chatting with your AI assistant</p>
+
+      <!-- Google Sign In Button -->
+      <div id="g_id_onload"
+        data-client_id="89989272050-qqh16jmcuo31sqrpre9g6hbg981l8orj.apps.googleusercontent.com"
+        data-callback="handleGoogleLogin"
+        data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+        data-type="standard"
+        data-size="large"
+        data-theme="outline"
+        data-text="sign_in_with"
+        data-shape="rectangular"
+        data-logo_alignment="left"
+        data-width="300">
+      </div>
+
+      <p class="login-disclaimer">
+        By signing in you agree to our terms of service.<br/>
+        We only access your name and email.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================
+       MAIN APP (shown after login)
+  ============================================ -->
+  <div class="app-shell" id="appShell" style="display:none">
 
     <!-- LEFT SIDEBAR -->
     <aside class="sidebar">
@@ -39,35 +80,38 @@
       </div>
 
       <div class="sidebar-bottom">
-  <div class="model-badge">
-    <span class="model-dot"></span>
-    llama-3.3-70b
-  </div>
+        <div class="model-badge">
+          <span class="model-dot"></span>
+          llama-3.3-70b
+        </div>
 
-  <!-- Theme Toggle -->
-  <div class="theme-toggle" onclick="toggleTheme()">
-    <span class="theme-icon" id="themeIcon">☀️</span>
-    <span class="theme-label" id="themeLabel">Light mode</span>
-    <div class="toggle-switch">
-      <div class="toggle-knob" id="toggleKnob"></div>
-    </div>
-  </div>
+        <!-- Theme Toggle -->
+        <div class="theme-toggle" onclick="toggleTheme()">
+          <span class="theme-icon" id="themeIcon">☀️</span>
+          <span class="theme-label" id="themeLabel">Light mode</span>
+          <div class="toggle-switch">
+            <div class="toggle-knob" id="toggleKnob"></div>
+          </div>
+        </div>
 
-  <div class="sidebar-user">
-    <div class="user-avatar">L</div>
-    <div class="user-info">
-      <span class="user-name">Lochan</span>
-      <span class="user-plan">Free plan</span>
-    </div>
-  </div>
-</div>
-   
+        <!-- User Profile (filled after login) -->
+        <div class="sidebar-user">
+          <img class="user-avatar-img" id="userPhoto" src="" alt=""/>
+          <div class="user-info">
+            <span class="user-name" id="userName">Loading...</span>
+            <span class="user-plan" id="userEmail">...</span>
+          </div>
+          <button class="logout-btn" onclick="logout()" title="Sign out">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
     </aside>
 
     <!-- MAIN CHAT AREA -->
     <main class="chat-main">
-
-      <!-- TOP BAR -->
       <header class="topbar">
         <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -83,19 +127,15 @@
         </div>
       </header>
 
-      <!-- MESSAGES -->
       <div class="messages" id="messages">
-
-        <!-- Welcome screen shown when empty -->
         <div class="welcome" id="welcome">
           <div class="welcome-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h1 class="welcome-title">How can I help you today?</h1>
+          <h1 class="welcome-title" id="welcomeTitle">How can I help you today?</h1>
           <p class="welcome-sub">Ask me anything — code, writing, analysis, or just a conversation.</p>
-
           <div class="suggestion-grid">
             <button class="suggestion-card" onclick="sendSuggestion('Explain how neural networks work in simple terms')">
               <span class="suggestion-icon">🧠</span>
@@ -115,19 +155,13 @@
             </button>
           </div>
         </div>
-
       </div>
 
-      <!-- INPUT AREA -->
       <div class="input-wrapper">
         <div class="input-box">
-          <textarea
-            id="userInput"
-            placeholder="Message Lochan AI..."
-            rows="1"
-          ></textarea>
+          <textarea id="userInput" placeholder="Message Lochan AI..." rows="1"></textarea>
           <div class="input-actions">
-            <button id="sendBtn" class="send-btn" onclick="sendMessage()" aria-label="Send message">
+            <button id="sendBtn" class="send-btn" onclick="sendMessage()" aria-label="Send">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -136,30 +170,9 @@
         </div>
         <p class="input-disclaimer">Lochan AI can make mistakes. Verify important information.</p>
       </div>
-
     </main>
   </div>
 
   <script src="script.js"></script>
-  <script>
-    function toggleSidebar() {
-      document.querySelector('.sidebar').classList.toggle('open');
-    }
-    function sendSuggestion(text) {
-      document.getElementById('userInput').value = text;
-      sendMessage();
-    }
-    function clearChat() {
-      conversationHistory = [];
-      const messages = document.getElementById('messages');
-      messages.innerHTML = '';
-      const welcome = document.createElement('div');
-      welcome.id = 'welcome';
-      welcome.className = 'welcome';
-      welcome.innerHTML = document.getElementById('welcome') ?
-        document.getElementById('welcome').innerHTML : '';
-      location.reload();
-    }
-  </script>
 </body>
 </html>
