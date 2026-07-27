@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lochan AI — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f0f11;
+      color: #f0f0f2;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      padding: 16px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #161618;
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .topbar-brand span {
+      background: linear-gradient(135deg, #7c6ff7, #1D9E75);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logout-link {
+      font-size: 13px;
+      color: #8b8b96;
+      cursor: pointer;
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      background: none;
+      transition: all 0.18s;
+    }
+
+    .logout-link:hover { background: #1c1c1f; color: #f0f0f2; }
+
+    /* Login screen */
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: #161618;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+
+    .login-card h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .login-card p {
+      font-size: 13px;
+      color: #8b8b96;
+      margin-bottom: 24px;
+    }
+
+    .admin-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: #1c1c1f;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      color: #f0f0f2;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.18s;
+    }
+
+    .admin-input:focus { border-color: rgba(124,111,247,0.5); }
+
+    .admin-btn {
+      width: 100%;
+      padding: 12px;
+      background: #7c6ff7;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+
+    .admin-btn:hover { background: #6b5fe6; }
+
+    .error-msg {
+      color: #e05555;
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Dashboard */
+    .dashboard { padding: 32px; max-width: 1100px; margin: 0 auto; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: #161618;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #8b8b96;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 600;
+      color: #f0f0f2;
+    }
+
+    .stat-value.accent { color: #7c6ff7; }
+    .stat-value.green  { color: #1D9E75; }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f0f0f2;
+      margin-bottom: 16px;
+    }
+
+    .users-table {
+      background: #161618;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .table-header {
+      display: grid;
+      grid-template-columns: 48px 1fr 1fr 120px 80px;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      font-size: 11px;
+      font-weight: 500;
+      color: #8b8b96;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      gap: 16px;
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: 48px 1fr 1fr 120px 80px;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      align-items: center;
+      gap: 16px;
+      transition: background 0.15s;
+    }
+
+    .table-row:hover { background: rgba(255,255,255,0.02); }
+    .table-row:last-child { border-bottom: none; }
+
+    .user-photo {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(124,111,247,0.3);
+    }
+
+    .user-photo-placeholder {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c6ff7, #1D9E75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .user-name-cell { font-size: 14px; font-weight: 500; color: #f0f0f2; }
+    .user-email-cell { font-size: 13px; color: #8b8b96; }
+
+    .login-count {
+      font-size: 13px;
+      color: #7c6ff7;
+      font-weight: 500;
+    }
+
+    .last-seen {
+      font-size: 12px;
+      color: #8b8b96;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px;
+      color: #8b8b96;
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 48px;
+      color: #8b8b96;
+      font-size: 14px;
+    }
+
+    .refresh-btn {
+      background: rgba(124,111,247,0.1);
+      border: 1px solid rgba(124,111,247,0.3);
+      border-radius: 8px;
+      color: #7c6ff7;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.18s;
+      margin-bottom: 16px;
+    }
+
+    .refresh-btn:hover { background: rgba(124,111,247,0.2); }
+
+    @media (max-width: 768px) {
+      .dashboard { padding: 16px; }
+      .table-header { grid-template-columns: 40px 1fr 80px; }
+      .table-row    { grid-template-columns: 40px 1fr 80px; }
+      .user-email-cell, .login-count { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <h2>🔐 Admin Dashboard</h2>
+      <p>Enter your admin key to access user analytics</p>
+      <input
+        type="password"
+        class="admin-input"
+        id="adminKeyInput"
+        placeholder="Enter admin key..."
+      />
+      <button class="admin-btn" onclick="adminLogin()">Access Dashboard</button>
+      <p class="error-msg" id="errorMsg">Wrong admin key. Try again.</p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" style="display:none">
+    <div class="topbar">
+      <div class="topbar-brand">
+        🤖 <span>Lochan AI</span> — Admin
+      </div>
+      <button class="logout-link" onclick="adminLogout()">Sign out</button>
+    </div>
+
+    <div class="dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value accent" id="totalUsers">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Messages</div>
+          <div class="stat-value green" id="totalMessages">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Most Active</div>
+          <div class="stat-value" id="mostActive" style="font-size:18px">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Newest User</div>
+          <div class="stat-value" id="newestUser" style="font-size:18px">—</div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div class="section-title">All Users</div>
+        <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+      </div>
+
+      <div class="users-table">
+        <div class="table-header">
+          <div></div>
+          <div>Name</div>
+          <div>Email</div>
+          <div>Last Login</div>
+          <div>Logins</div>
+        </div>
+        <div id="usersBody">
+          <div class="loading">Loading users...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let adminKey = '';
+
+    // Check if already logged in
+    const savedKey = sessionStorage.getItem('admin_key');
+    if (savedKey) {
+      adminKey = savedKey;
+      showDashboard();
+    }
+
+    function adminLogin() {
+      adminKey = document.getElementById('adminKeyInput').value.trim();
+      if (!adminKey) return;
+      showDashboard();
+    }
+
+    document.getElementById('adminKeyInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') adminLogin();
+    });
+
+    function adminLogout() {
+      sessionStorage.removeItem('admin_key');
+      location.reload();
+    }
+
+    function showDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display   = 'block';
+      loadData();
+    }
+
+    async function loadData() {
+      document.getElementById('usersBody').innerHTML = '<div class="loading">Loading...</div>';
+
+      try {
+        const res  = await fetch('/api/admin/users', {
+          headers: { 'admin-key': adminKey }
+        });
+
+        if (res.status === 401) {
+          document.getElementById('errorMsg').style.display = 'block';
+          document.getElementById('loginScreen').style.display = 'flex';
+          document.getElementById('dashboard').style.display   = 'none';
+          return;
+        }
+
+        const data = await res.json();
+        sessionStorage.setItem('admin_key', adminKey);
+
+        // Stats
+        document.getElementById('totalUsers').textContent    = data.users.length;
+        document.getElementById('totalMessages').textContent = data.totalMessages;
+
+        if (data.users.length > 0) {
+          // Most active user (highest login count)
+          const mostActive = data.users.reduce((a, b) =>
+            a.loginCount > b.loginCount ? a : b
+          );
+          document.getElementById('mostActive').textContent =
+            mostActive.name.split(' ')[0] + ' (' + mostActive.loginCount + ')';
+
+          // Newest user
+          const newest = data.users[data.users.length - 1];
+          document.getElementById('newestUser').textContent =
+            newest.name.split(' ')[0];
+
+          // Users table
+          document.getElementById('usersBody').innerHTML = data.users.map(user => `
+            <div class="table-row">
+              <div>
+                ${user.picture
+                  ? `<img class="user-photo" src="${user.picture}" alt="${user.name}"/>`
+                  : `<div class="user-photo-placeholder">${user.name[0]}</div>`
+                }
+              </div>
+              <div class="user-name-cell">${user.name}</div>
+              <div class="user-email-cell">${user.email}</div>
+              <div class="last-seen">${timeAgo(user.lastLogin)}</div>
+              <div class="login-count">${user.loginCount}x</div>
+            </div>
+          `).join('');
+
+        } else {
+          document.getElementById('usersBody').innerHTML =
+            '<div class="empty-state">No users yet. Share your chatbot link!</div>';
+        }
+
+      } catch (err) {
+        document.getElementById('usersBody').innerHTML =
+          '<div class="empty-state">Error loading data. Check your connection.</div>';
+      }
+    }
+
+    function timeAgo(dateStr) {
+      const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+      if (diff < 60)     return 'Just now';
+      if (diff < 3600)   return Math.floor(diff/60)   + 'm ago';
+      if (diff < 86400)  return Math.floor(diff/3600)  + 'h ago';
+      if (diff < 604800) return Math.floor(diff/86400) + 'd ago';
+      return new Date(dateStr).toLocaleDateString();
+    }
+  </script>
+</body>
+</html>
