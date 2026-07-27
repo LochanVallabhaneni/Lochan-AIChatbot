@@ -3,43 +3,152 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lochan AI Chatbot</title>
+  <title>Lochan AI</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 </head>
 <body>
 
-  <div class="chat-container">
+  <div class="app-shell">
 
-    <!-- Header -->
-    <div class="chat-header">
-      <div class="bot-info">
-        <div class="bot-avatar">🤖</div>
-        <div>
-          <h2>Lochan AI</h2>
-          <span class="status">● Online</span>
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="brand-name">Lochan AI</span>
+        </div>
+        <button class="new-chat-btn" onclick="clearChat()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          New chat
+        </button>
+      </div>
+
+      <div class="sidebar-section-label">Today</div>
+      <div class="chat-history">
+        <div class="history-item active">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2"/></svg>
+          Current conversation
         </div>
       </div>
-      <span class="badge">Lochan's AI</span>
-    </div>
 
-    <!-- Messages -->
-    <div class="messages" id="messages">
-      <div class="message bot">
-        <div class="avatar">🤖</div>
-        <div class="bubble">
-          Hi! I'm Lochan, your AI assistant. How can I help you today?
+      <div class="sidebar-bottom">
+        <div class="model-badge">
+          <span class="model-dot"></span>
+          llama-3.3-70b
+        </div>
+        <div class="sidebar-user">
+          <div class="user-avatar">L</div>
+          <div class="user-info">
+            <span class="user-name">Lochan</span>
+            <span class="user-plan">Free plan</span>
+          </div>
         </div>
       </div>
-    </div>
+    </aside>
 
-    <!-- Input -->
-    <div class="input-area">
-      <textarea id="userInput" placeholder="Type a message..." rows="1"></textarea>
-      <button id="sendBtn" onclick="sendMessage()">Send ➤</button>
-    </div>
+    <!-- MAIN CHAT AREA -->
+    <main class="chat-main">
 
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="topbar-center">
+          <span class="topbar-title">Lochan AI</span>
+        </div>
+        <div class="status-pill">
+          <span class="pulse"></span>
+          Online
+        </div>
+      </header>
+
+      <!-- MESSAGES -->
+      <div class="messages" id="messages">
+
+        <!-- Welcome screen shown when empty -->
+        <div class="welcome" id="welcome">
+          <div class="welcome-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h1 class="welcome-title">How can I help you today?</h1>
+          <p class="welcome-sub">Ask me anything — code, writing, analysis, or just a conversation.</p>
+
+          <div class="suggestion-grid">
+            <button class="suggestion-card" onclick="sendSuggestion('Explain how neural networks work in simple terms')">
+              <span class="suggestion-icon">🧠</span>
+              <span class="suggestion-text">Explain neural networks simply</span>
+            </button>
+            <button class="suggestion-card" onclick="sendSuggestion('Write a Python function to sort a list of dictionaries by a key')">
+              <span class="suggestion-icon">🐍</span>
+              <span class="suggestion-text">Python sorting function</span>
+            </button>
+            <button class="suggestion-card" onclick="sendSuggestion('Give me 5 tips to improve my Upwork profile as a beginner freelancer')">
+              <span class="suggestion-icon">💼</span>
+              <span class="suggestion-text">Upwork profile tips</span>
+            </button>
+            <button class="suggestion-card" onclick="sendSuggestion('What are the best free tools for a web developer in 2025?')">
+              <span class="suggestion-icon">🛠️</span>
+              <span class="suggestion-text">Best free dev tools 2025</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- INPUT AREA -->
+      <div class="input-wrapper">
+        <div class="input-box">
+          <textarea
+            id="userInput"
+            placeholder="Message Lochan AI..."
+            rows="1"
+          ></textarea>
+          <div class="input-actions">
+            <button id="sendBtn" class="send-btn" onclick="sendMessage()" aria-label="Send message">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <p class="input-disclaimer">Lochan AI can make mistakes. Verify important information.</p>
+      </div>
+
+    </main>
   </div>
 
   <script src="script.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('open');
+    }
+    function sendSuggestion(text) {
+      document.getElementById('userInput').value = text;
+      sendMessage();
+    }
+    function clearChat() {
+      conversationHistory = [];
+      const messages = document.getElementById('messages');
+      messages.innerHTML = '';
+      const welcome = document.createElement('div');
+      welcome.id = 'welcome';
+      welcome.className = 'welcome';
+      welcome.innerHTML = document.getElementById('welcome') ?
+        document.getElementById('welcome').innerHTML : '';
+      location.reload();
+    }
+  </script>
 </body>
 </html>
