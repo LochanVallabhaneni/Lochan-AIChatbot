@@ -17,20 +17,50 @@ function toggleTheme() {
 // GOOGLE SIGN IN
 // ============================================
 function handleGoogleLogin(response) {
-  // Decode the JWT token Google sends
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
 
   const user = {
-    name:    payload.name,
-    email:   payload.email,
-    picture: payload.picture
+    googleId: payload.sub,
+    name:     payload.name,
+    email:    payload.email,
+    picture:  payload.picture
   };
 
   // Save user to localStorage
   localStorage.setItem('lochan_user', JSON.stringify(user));
 
-  // Show the app
+  // Save user to MongoDB
+  fetch('/api/user/login', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(user)
+  });
+
+  // Load chat history then show app
+  loadHistory(user);
+}
+
+async function loadHistory(user) {
   showApp(user);
+
+  try {
+    const res  = await fetch(`/api/history/${user.googleId}`);
+    const data = await res.json();
+
+    if (data.messages && data.messages.length > 0) {
+      // Remove welcome screen
+      const welcome = document.getElementById('welcome');
+      if (welcome) welcome.remove();
+
+      // Load old messages
+      data.messages.forEach(msg => {
+        conversationHistory.push({ role: msg.role, content: msg.content });
+        addMessage(msg.role === 'user' ? 'user' : 'bot', msg.content);
+      });
+    }
+  } catch (err) {
+    console.error('History load error:', err);
+  }
 }
 
 function showApp(user) {
@@ -146,7 +176,9 @@ async function sendMessage() {
     const response = await fetch('/api/chat', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ messages: conversationHistory })
+      body: JSON.stringify({
+      messages: conversationHistory,
+      googleId: JSON.parse(localStorage.getItem('lochan_user') || '{}').googleId })
     });
 
     const data = await response.json();
