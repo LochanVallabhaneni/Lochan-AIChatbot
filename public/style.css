@@ -866,3 +866,25 @@ body.light .toggle-knob { transform: translateX(16px); }
   color: #e05555;
   background: rgba(224,85,85,0.1);
 }
+
+
+.chat-link {
+  color: #7c6ff7;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-all;
+  transition: color 0.18s;
+}
+
+.chat-link:hover {
+  color: #a89df9;
+}
+
+
+body.light .chat-link {
+  color: #534AB7;
+}
+
+body.light .chat-link:hover {
+  color: #3C3489;
+}
