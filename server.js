@@ -9,18 +9,12 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ============================================
-// MONGODB CONNECTION
-// ============================================
+
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDB connected!'))
   .catch(err => console.error('❌ MongoDB error:', err));
 
-// ============================================
-// SCHEMAS
-// ============================================
 
-// User schema — saves Google login info
 const userSchema = new mongoose.Schema({
   googleId:  { type: String, required: true, unique: true },
   name:      String,
@@ -31,7 +25,7 @@ const userSchema = new mongoose.Schema({
   loginCount:{ type: Number, default: 1 }
 });
 
-// Message schema — saves chat history
+
 const messageSchema = new mongoose.Schema({
   googleId:  String,
   role:      String, // 'user' or 'assistant'
@@ -42,11 +36,7 @@ const messageSchema = new mongoose.Schema({
 const User    = mongoose.model('User',    userSchema);
 const Message = mongoose.model('Message', messageSchema);
 
-// ============================================
-// ROUTES
-// ============================================
 
-// Save user when they log in with Google
 app.post('/api/user/login', async (req, res) => {
   const { googleId, name, email, picture } = req.body;
 
@@ -54,13 +44,13 @@ app.post('/api/user/login', async (req, res) => {
     let user = await User.findOne({ googleId });
 
     if (user) {
-      // Update existing user
+     
       user.lastLogin  = new Date();
       user.loginCount += 1;
       user.picture    = picture;
       await user.save();
     } else {
-      // Create new user
+     
       user = await User.create({ googleId, name, email, picture });
     }
 
@@ -71,7 +61,7 @@ app.post('/api/user/login', async (req, res) => {
   }
 });
 
-// Get chat history for a user
+
 app.get('/api/history/:googleId', async (req, res) => {
   try {
     const messages = await Message.find({
@@ -84,7 +74,7 @@ app.get('/api/history/:googleId', async (req, res) => {
   }
 });
 
-// Save a message
+
 app.post('/api/history/save', async (req, res) => {
   const { googleId, role, content } = req.body;
 
@@ -96,7 +86,7 @@ app.post('/api/history/save', async (req, res) => {
   }
 });
 
-// Clear chat history
+
 app.delete('/api/history/:googleId', async (req, res) => {
   try {
     await Message.deleteMany({ googleId: req.params.googleId });
@@ -106,9 +96,7 @@ app.delete('/api/history/:googleId', async (req, res) => {
   }
 });
 
-// ============================================
-// ADMIN ROUTE — see all users
-// ============================================
+
 app.get('/api/admin/users', async (req, res) => {
   const adminKey = req.headers['admin-key'];
   if (adminKey !== process.env.ADMIN_KEY) {
@@ -124,9 +112,7 @@ app.get('/api/admin/users', async (req, res) => {
   }
 });
 
-// ============================================
-// MAIN CHAT ROUTE
-// ============================================
+
 app.post('/api/chat', async (req, res) => {
   const { messages, googleId } = req.body;
 
@@ -146,7 +132,7 @@ app.post('/api/chat', async (req, res) => {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model:      'llama-3.3-70b-versatile',
+        model: 'qwen/qwen3.6-27b',
         max_tokens: 1000,
         messages: [
           { role: 'system', content: 'You are Lochan AI, a friendly and helpful AI assistant. Keep responses clear and concise.' },
@@ -165,7 +151,6 @@ app.post('/api/chat', async (req, res) => {
 
     const reply = data.choices[0].message.content;
 
-    // Save messages to MongoDB if user is logged in
     if (googleId) {
       const lastUserMsg = messages[messages.length - 1];
       await Message.create({ googleId, role: 'user',      content: lastUserMsg.content });
