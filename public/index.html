@@ -6,14 +6,12 @@
   <title>Lochan AI</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <!-- Google Sign In -->
+
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-  <!-- ============================================
-       LOGIN SCREEN (shown before login)
-  ============================================ -->
+  
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-logo">
@@ -24,7 +22,7 @@
       <h1 class="login-title">Welcome to Lochan AI</h1>
       <p class="login-sub">Sign in to start chatting with your AI assistant</p>
 
-      <!-- Google Sign In Button -->
+      
       <div id="g_id_onload"
         data-client_id="89989272050-qqh16jmcuo31sqrpre9g6hbg981l8orj.apps.googleusercontent.com"
         data-callback="handleGoogleLogin"
@@ -47,9 +45,6 @@
     </div>
   </div>
 
-  <!-- ============================================
-       MAIN APP (shown after login)
-  ============================================ -->
   <div class="app-shell" id="appShell" style="display:none">
 
     <!-- LEFT SIDEBAR -->
