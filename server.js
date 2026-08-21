@@ -132,7 +132,7 @@ app.post('/api/chat', async (req, res) => {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-  model: 'qwen/qwen3.6-27b',
+  model: 'llama-3.1-8b-instant',
   max_tokens: 1000,
   messages: [
     { 
