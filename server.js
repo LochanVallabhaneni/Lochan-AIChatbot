@@ -132,16 +132,17 @@ app.post('/api/chat', async (req, res) => {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-  model: 'llama-3.1-8b-instant',
-  max_tokens: 1000,
-  messages: [
-    { 
-      role: 'system', 
-      content: 'You are Lochan AI, a friendly and helpful assistant. Give direct answers only. Never show your thinking process or reasoning steps. Never say "Here is a thinking process". Just answer directly and clearly.' 
-    },
-    ...messages
-  ]
-})
+        model: 'qwen/qwen3.6-27b',
+        max_tokens: 1000,
+        reasoning_effort: 'none',        // ← ADD THIS — disables thinking mode
+        messages: [
+          { 
+            role: 'system', 
+            content: 'You are Lochan AI, a friendly and helpful assistant. Give direct answers only.' 
+          },
+          ...messages
+        ]
+      })
     });
 
     const data = await response.json();
