@@ -133,8 +133,7 @@ app.post('/api/chat', async (req, res) => {
       },
       body: JSON.stringify({
         model: 'openai/gpt-oss-20b',
-        max_tokens: 1000,
-        reasoning_effort: 'none',       
+        max_tokens: 1000,      
         messages: [
           { 
             role: 'system', 
