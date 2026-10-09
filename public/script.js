@@ -173,13 +173,16 @@ async function sendMessage() {
   showTypingIndicator();
 
   try {
+    const recentMessages = conversationHistory.slice(-10);
+
     const response = await fetch('/api/chat', {
-      method:  'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-      messages: conversationHistory,
-      googleId: JSON.parse(localStorage.getItem('lochan_user') || '{}').googleId })
-    });
+        messages: recentMessages,
+        googleId: JSON.parse(localStorage.getItem('lochan_user') || '{}').googleId
+  })
+});
 
     const data = await response.json();
     removeTypingIndicator();
