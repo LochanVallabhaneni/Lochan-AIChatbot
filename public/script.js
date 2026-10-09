@@ -255,31 +255,24 @@ function addMessage(role, text) {
 }
 
 function formatMessage(text) {
-  // Code blocks
+  
   text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, function(match, lang, code) {
     const language = lang || 'code';
-    return `<pre>
-      <div class="code-header">
-        <span class="code-lang">${language}</span>
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-      </div>
-      <code>${escapeHtml(code.trim())}</code>
-    </pre>`;
+    return `<pre><div class="code-header"><span class="code-lang">${language}</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><code>${escapeHtml(code.trim())}</code></pre>`;
   });
-
 
   text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
 
-  
+
   text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
- 
+
   text = text.replace(
     /(https?:\/\/[^\s<>"{}|\\^`\[\]]+)/g,
     '<a href="$1" target="_blank" rel="noopener noreferrer" class="chat-link">$1</a>'
   );
 
-  // Line breaks
+
   text = text.replace(/\n/g, '<br>');
 
   return text;
